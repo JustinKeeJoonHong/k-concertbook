@@ -2,7 +2,7 @@
 
 ## Architecture Overview
 
-![Architecture Diagram](./docs/architecture.png)
+![Architecture Diagram](./diagrams/architecture.png)
 
 K-ConcertBook is a **serverless, high-concurrency ticket booking system** designed for K-pop concert reservations.  
 The primary goal of this architecture is to **handle large-scale concurrent traffic while maintaining strong data consistency, low latency, and high availability**.
@@ -61,19 +61,32 @@ To strengthen security and reduce latency between internal services, the system 
 
 ---
 
-## Secure Image Upload and Performance Optimization
+## CloudFront Performance Comparison (Before vs After)
 
-Client-side image uploads are handled using **S3 Presigned URLs**.
+To validate the impact of introducing CloudFront as a CDN layer,  
+I compared image delivery performance before and after applying CloudFront.
 
-- The backend generates a presigned URL
-- Clients upload images directly to S3 without passing through the backend
-- This improves both security and performance
+### Before CloudFront
 
-To further optimize performance, **CloudFront CDN** is used for image delivery:
+![Before CloudFront](./diagrams/BeforeCloudfrontCDN.png)
 
-- Average **TTFB reduced from 495.7ms to 27.2ms**
-- Approximately **94.5% latency improvement**
-- Reduced regional network latency for global users
+- Images were served directly from S3
+- Higher latency due to regional distance
+- Increased TTFB under load
+
+### After CloudFront
+
+![After CloudFront](./diagrams/AfterCloudfrontCDN.png)
+
+- Images are delivered from the nearest CloudFront edge location
+- Significantly reduced TTFB
+- Improved user experience under high traffic
+
+### Performance Impact
+
+- **TTFB reduced from 495.7ms to 27.2ms**
+- **~94.5% latency improvement**
+- Reduced origin load on S3
 
 ---
 
